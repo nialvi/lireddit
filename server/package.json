@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node dist/index.js",
     "watch": "tsc -w",
-    "dev": "nodemon dist/index.js"
+    "dev": "nodemon dist/index.js",
+    "create:migration": "npx mikro-orm migration:create"
   },
   "keywords": [],
   "author": "Nikolaev Viktor <maclauddd@gmail.com>",
@@ -24,6 +25,7 @@
     "@mikro-orm/migrations": "^4.5.5",
     "@mikro-orm/postgresql": "^4.5.5",
     "apollo-server-express": "^2.24.1",
+    "argon2": "^0.27.2",
     "express": "^4.17.1",
     "graphql": "^15.5.0",
     "pg": "^8.6.0",
