@@ -9,7 +9,7 @@ import redis from "redis";
 import session from "express-session";
 import connectRedis from "connect-redis";
 
-import { __PROD__ } from "./constants";
+import { __PROD__, COOKIE_QID } from "./constants";
 import mikroConfig from "./mikro-orm.config";
 
 import { HelloResolver } from "./resolvers/hello";
@@ -30,7 +30,7 @@ const main = async () => {
 
   app.use(
     session({
-      name: "qid",
+      name: COOKIE_QID,
       store: new RedisStore({ client: redisClient, disableTouch: true }),
       saveUninitialized: false,
       secret: "secret secret",
