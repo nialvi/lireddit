@@ -3,7 +3,6 @@ import {
   Resolver,
   Mutation,
   Arg,
-  InputType,
   Field,
   Ctx,
   ObjectType,
@@ -13,14 +12,8 @@ import {
 import { User } from "../entities/User";
 import { COOKIE_QID } from "../constants";
 import { MyContext } from "../types";
-
-@InputType()
-class UserNamePasswordInput {
-  @Field()
-  username: string;
-  @Field()
-  password: string;
-}
+import { UserNamePasswordInput } from "./UserNamePasswordInput";
+import { validationRegister } from "../utils/validationRegister";
 
 @ObjectType()
 class FieldError {
@@ -41,6 +34,15 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+  @Mutation(() => Boolean)
+  forgotPassword(
+    @Arg("options") options: UserNamePasswordInput,
+    @Ctx() { em }: MyContext
+  ) {
+    // em.findOne(User, { id: req.session.userId });
+    return true;
+  }
+
   @Query(() => User, { nullable: true })
   async me(@Ctx() { em, req }: MyContext) {
     if (!req.session.userId) {
@@ -57,31 +59,16 @@ export class UserResolver {
     @Arg("options") options: UserNamePasswordInput,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
-    if (options.username.length <= 2) {
-      return {
-        errors: [
-          {
-            field: "username",
-            message: "length must be greater than 2",
-          },
-        ],
-      };
-    }
+    const errors = validationRegister(options);
 
-    if (options.password.length <= 3) {
-      return {
-        errors: [
-          {
-            field: "password",
-            message: "length must be greater than 3",
-          },
-        ],
-      };
+    if (errors) {
+      return { errors };
     }
 
     const hashedPassword = await agron2.hash(options.password);
     const user = em.create(User, {
       username: options.username,
+      email: options.email,
       password: hashedPassword,
     });
 
@@ -107,25 +94,33 @@ export class UserResolver {
 
   @Mutation(() => UserResponse)
   async login(
-    @Arg("options") options: UserNamePasswordInput,
+    @Arg("usernameOrEmail") usernameOrEmail: string,
+    @Arg("password") password: string,
     @Ctx() { em, req }: MyContext
   ): Promise<UserResponse> {
-    const user = await em.findOne(User, {
-      username: options.username.toLocaleLowerCase(),
-    });
+    const user = await em.findOne(
+      User,
+      usernameOrEmail.includes("@")
+        ? {
+            email: usernameOrEmail.toLocaleLowerCase(),
+          }
+        : {
+            username: usernameOrEmail.toLocaleLowerCase(),
+          }
+    );
 
     if (!user) {
       return {
         errors: [
           {
-            field: "username",
+            field: "usernameOrEmail",
             message: "that username dons't exist",
           },
         ],
       };
     }
 
-    const valid = await agron2.verify(user.password, options.password);
+    const valid = await agron2.verify(user.password, password);
 
     if (!valid) {
       return {

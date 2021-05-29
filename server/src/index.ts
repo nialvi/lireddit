@@ -19,12 +19,11 @@ import { MyContext } from "./types";
 
 const main = async () => {
   const orm = await MikroORM.init(mikroConfig);
-  await orm.getMigrator().up();
-
   const app = express();
-
   const RedisStore = connectRedis(session);
   const redisClient = redis.createClient();
+
+  await orm.getMigrator().up();
 
   app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
