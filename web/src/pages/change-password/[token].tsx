@@ -12,10 +12,13 @@ import { useState } from "react";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../../utils/createUrlqlClient";
 
-const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
+const ChangePassword: NextPage = () => {
   const [, changePassword] = useChangePasswordMutation();
   const router = useRouter();
   const [tokenError, setTokenError] = useState("");
+  console.log(router.query);
+  const token =
+    typeof router.query.token === "string" ? router.query.token : "";
 
   return (
     <Wrapper variant="small">
@@ -72,11 +75,4 @@ const ChangePassword: NextPage<{ token: string }> = ({ token }) => {
   );
 };
 
-ChangePassword.getInitialProps = ({ query }) => {
-  return {
-    token: query.token as string,
-  };
-};
-
-// @ts-ignore TODO
 export default withUrqlClient(createUrqlClient)(ChangePassword);
