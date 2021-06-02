@@ -15,6 +15,7 @@ import {
 
 import { MyContext } from "../types";
 import { Post } from "../entities/Post";
+import { Updoot } from "../entities/Updoot";
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
 
@@ -82,6 +83,41 @@ export class PostResolver {
   @Query(() => Post, { nullable: true })
   post(@Arg("id", () => Int) id: number): Promise<Post | undefined> {
     return Post.findOne(id);
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async vote(
+    @Arg("postId", () => Int) postId: number,
+    @Arg("value", () => Int) value: number,
+    @Ctx() { req }: MyContext
+  ) {
+    const isUpvote = value !== -1;
+    const realValue = isUpvote ? 1 : -1;
+    const { userId } = req.session;
+
+    // await Updoot.insert({
+    //   userId,
+    //   postId,
+    //   value: realValue,
+    // });
+
+    await getConnection().query(
+      `
+      START TRANSACTION;
+
+      insert into updoot ("userId", "postId", value)
+      values (${userId},${postId},${realValue});
+
+      update post
+      set points = points + ${realValue}
+      where id = ${postId};
+
+      COMMIT;
+      `
+    );
+
+    return true;
   }
 
   @Mutation(() => Post)
