@@ -16,7 +16,7 @@ import { useState } from "react";
 
 const Index = () => {
   const [variables, setVariables] = useState({
-    limit: 50,
+    limit: 15,
     cursor: null as string | null,
   });
   const [{ data, fetching }] = usePostsQuery({
@@ -43,7 +43,8 @@ const Index = () => {
           {data?.posts.posts.map((post) => {
             return (
               <Box p={5} shadow="md" borderWidth="1px" key={post.id}>
-                <Heading fontSize="xl">{post.title}</Heading>
+                <Heading fontSize="xl">{post.title}</Heading>{" "}
+                <Text>posted by {post.creator.username}</Text>
                 <Text mt={4}>{post.textSnippet}</Text>
               </Box>
             );
