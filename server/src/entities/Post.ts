@@ -8,7 +8,7 @@ import {
   ManyToOne,
   OneToMany,
 } from "typeorm";
-import { Field, ObjectType } from "type-graphql";
+import { Field, Int, ObjectType } from "type-graphql";
 import { User } from "./User";
 import { Updoot } from "./Updoot";
 
@@ -49,4 +49,7 @@ export class Post extends BaseEntity {
 
   @OneToMany(() => Updoot, (updoots) => updoots.post)
   updoots!: Updoot;
+
+  @Field(() => Int, { nullable: true })
+  voteStatus: number | null; // value 1 | -1 | null
 }
