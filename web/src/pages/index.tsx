@@ -1,21 +1,20 @@
-import { withUrqlClient } from "next-urql";
-import { Layout } from "../components/Layout";
-import { Updoot } from "../components/updoot";
-import { useDeletePostMutation, usePostsQuery } from "../generated/graphql";
-import { createUrqlClient } from "../utils/createUrlqlClient";
 import {
+  Box,
+  Button,
+  Flex,
+  Heading,
   Link,
   Stack,
-  Box,
-  Heading,
   Text,
-  Flex,
-  Button,
-  IconButton,
 } from "@chakra-ui/react";
-import { DeleteIcon } from "@chakra-ui/icons";
+import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
 import { useState } from "react";
+import { EditAndDeleteButtons } from "../components/editAndDeleteButtons";
+import { Layout } from "../components/layout";
+import { Updoot } from "../components/updoot";
+import { usePostsQuery } from "../generated/graphql";
+import { createUrqlClient } from "../utils/createUrlqlClient";
 
 const Index = () => {
   const [variables, setVariables] = useState({
@@ -25,7 +24,6 @@ const Index = () => {
   const [{ data, fetching }] = usePostsQuery({
     variables,
   });
-  const [, deletePost] = useDeletePostMutation();
 
   if (!data && !fetching) {
     return <div>you got no data or query is failed</div>;
@@ -60,12 +58,12 @@ const Index = () => {
                       {post.textSnippet}
                     </Text>
 
-                    <IconButton
-                      ml="auto"
-                      icon={<DeleteIcon />}
-                      aria-label="Delete post"
-                      onClick={() => deletePost({ id: post.id })}
-                    />
+                    <Box ml="auto">
+                      <EditAndDeleteButtons
+                        id={post.id}
+                        creatorId={post.creator.id}
+                      />
+                    </Box>
                   </Flex>
                 </Box>
               </Flex>

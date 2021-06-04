@@ -5,7 +5,7 @@ import { useCreatePostMutation } from "../generated/graphql";
 import { useRouter } from "next/router";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrlqlClient";
-import { Layout } from "../components/Layout";
+import { Layout } from "../components/layout";
 import { useIsAuth } from "../utils/useIsAuth";
 
 const CreatePost: React.FC<{}> = ({}) => {

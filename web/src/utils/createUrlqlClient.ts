@@ -8,6 +8,7 @@ import {
   RegisterMutation,
   VoteMutationVariables,
   DeletePostMutationVariables,
+  UpdatePostMutationVariables,
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
 
@@ -72,7 +73,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   let cookie = "";
 
   if (isServer()) {
-    cookie = ctx.req.headers.cookie;
+    cookie = ctx?.req?.headers?.cookie;
   }
 
   return {
@@ -98,6 +99,12 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
         },
         updates: {
           Mutation: {
+            updatePost: (_result, args, cache, info) => {
+              cache.invalidate({
+                __typename: "Post",
+                id: (args as UpdatePostMutationVariables).id,
+              });
+            },
             deletePost: (_result, args, cache, info) => {
               cache.invalidate({
                 __typename: "Post",
