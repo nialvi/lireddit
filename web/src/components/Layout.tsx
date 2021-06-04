@@ -3,10 +3,13 @@ import { NavBar } from "./navBar";
 import { Wrapper, WrapperVariants } from "./wrapper";
 
 interface LayoutProps {
-  variant: WrapperVariants;
+  variant?: WrapperVariants;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ variant, children }) => {
+export const Layout: React.FC<LayoutProps> = ({
+  variant = "regular",
+  children,
+}) => {
   return (
     <>
       <NavBar />
