@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import "dotenv-safe/config";
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
@@ -23,9 +24,7 @@ import { Updoot } from "./entities/Updoot";
 const main = async () => {
   const connection = await createConnection({
     type: "postgres",
-    database: "lireddit2",
-    username: "postgres",
-    password: "postgres",
+    url: process.env.DATABASE_URL,
     logging: true,
     synchronize: true,
     migrations: [path.join(__dirname, "./migrations/*")],
@@ -36,22 +35,23 @@ const main = async () => {
 
   const app = express();
   const RedisStore = connectRedis(session);
-  const redis = new Redis();
+  const redis = new Redis(process.env.REDIS_URL);
 
-  app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+  app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
 
   app.use(
     session({
       name: COOKIE_QID,
       store: new RedisStore({ client: redis, disableTouch: true }),
       saveUninitialized: false,
-      secret: "secret secret",
+      secret: process.env.SESSION_SECRET,
       resave: false,
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365,
         httpOnly: true,
         sameSite: "lax", // csrf
         secure: __PROD__, // cookie works only on https
+        domain: __PROD__ ? ".codeponder.com" : undefined,
       },
     })
   );
@@ -73,8 +73,8 @@ const main = async () => {
     res.send("hello");
   });
 
-  app.listen(4000, () => {
-    console.log("server started on localhost:4000");
+  app.listen(parseInt(process.env.PORT), () => {
+    console.log(`server started on localhost:${process.env.PORT}`);
   });
 };
 
